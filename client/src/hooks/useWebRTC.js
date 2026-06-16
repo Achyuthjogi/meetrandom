@@ -19,6 +19,7 @@ export function useWebRTC() {
 
   const pcRef = useRef(null);
   const socketRef = useRef(null);
+  const localStreamRef = useRef(null);
 
   // Initialize Socket
   useEffect(() => {
@@ -74,8 +75,8 @@ export function useWebRTC() {
     const pc = new RTCPeerConnection(STUN_SERVERS);
     pcRef.current = pc;
 
-    if (localStream) {
-      localStream.getTracks().forEach((track) => pc.addTrack(track, localStream));
+    if (localStreamRef.current) {
+      localStreamRef.current.getTracks().forEach((track) => pc.addTrack(track, localStreamRef.current));
     }
 
     pc.ontrack = (event) => {
@@ -113,6 +114,7 @@ export function useWebRTC() {
       }
       const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
       setLocalStream(stream);
+      localStreamRef.current = stream;
       // update tracks if connected
       if (pcRef.current) {
          stream.getTracks().forEach(track => {
@@ -129,9 +131,10 @@ export function useWebRTC() {
   };
 
   const stopCamera = () => {
-    if (localStream) {
-      localStream.getTracks().forEach((t) => t.stop());
+    if (localStreamRef.current) {
+      localStreamRef.current.getTracks().forEach((t) => t.stop());
       setLocalStream(null);
+      localStreamRef.current = null;
     }
   };
 
