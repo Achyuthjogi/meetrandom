@@ -107,6 +107,10 @@ export function useWebRTC() {
 
   const startCamera = async () => {
     try {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        console.error('MediaDevices API not available. You must use HTTPS or localhost to access the camera.');
+        return false;
+      }
       const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
       setLocalStream(stream);
       // update tracks if connected
@@ -119,7 +123,7 @@ export function useWebRTC() {
       }
       return true;
     } catch (err) {
-      console.error('Failed to get media', err);
+      console.error('Failed to get media:', err.message || err);
       return false;
     }
   };

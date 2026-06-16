@@ -42,12 +42,28 @@ function App() {
     stopChat();
   };
 
-  const handleToggleCam = () => {
+  const handleToggleCam = async () => {
+    if (!localStream) {
+      const success = await startCamera();
+      if (success) {
+        setCamEnabled(true);
+        setMicEnabled(true);
+      }
+      return;
+    }
     const isEnabled = toggleTrack('video');
     setCamEnabled(isEnabled);
   };
 
-  const handleToggleMic = () => {
+  const handleToggleMic = async () => {
+    if (!localStream) {
+      const success = await startCamera();
+      if (success) {
+        setCamEnabled(true);
+        setMicEnabled(true);
+      }
+      return;
+    }
     const isEnabled = toggleTrack('audio');
     setMicEnabled(isEnabled);
   };
