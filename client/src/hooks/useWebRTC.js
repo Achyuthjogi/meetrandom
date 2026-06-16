@@ -159,8 +159,19 @@ export function useWebRTC() {
     socketRef.current?.emit('typing', false);
   };
 
+  const typingTimeout = useRef(null);
+
   const sendTyping = (typing) => {
-    socketRef.current?.emit('typing', typing);
+    if (typing) {
+      socketRef.current?.emit('typing', true);
+      clearTimeout(typingTimeout.current);
+      typingTimeout.current = setTimeout(() => {
+        socketRef.current?.emit('typing', false);
+      }, 2000);
+    } else {
+      clearTimeout(typingTimeout.current);
+      socketRef.current?.emit('typing', false);
+    }
   };
 
   const addMessage = useCallback((msg) => {

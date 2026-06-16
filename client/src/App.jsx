@@ -29,11 +29,7 @@ function App() {
   const [micEnabled, setMicEnabled] = useState(true);
 
   const handleStart = async (interests) => {
-    const success = await startCamera();
-    if (!success) {
-      alert("Camera/Mic access is required for this immersive experience.");
-      return;
-    }
+    await startCamera(); // If it fails, that's okay, localStream will just be null
     setView('room');
     findPartner(interests);
   };

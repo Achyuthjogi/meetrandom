@@ -91,7 +91,8 @@ export function VideoCard({ stream, isLocal, state, muted }) {
             ) : isLocal && !stream ? (
               <div className="flex flex-col items-center gap-3 text-white/60">
                 <Loader2 className="w-8 h-8 animate-spin text-accent" />
-                <p>Initializing Camera...</p>
+                <p>Waiting for Camera...</p>
+                <span className="text-xs text-white/40 max-w-[200px]">If denied, you can still use text chat.</span>
               </div>
             ) : null}
           </motion.div>
