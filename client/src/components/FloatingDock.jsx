@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Camera, Mic, MicOff, VideoOff, SkipForward, Square, Flag, Settings } from 'lucide-react';
+import { Camera, Mic, MicOff, VideoOff, SkipForward, Square, Flag, Settings, SwitchCamera } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 export function FloatingDock({ 
@@ -10,6 +10,7 @@ export function FloatingDock({
   micEnabled, 
   toggleCam, 
   toggleMic,
+  switchCamera,
   state 
 }) {
   return (
@@ -24,6 +25,13 @@ export function FloatingDock({
         active={camEnabled}
         color="accent"
       />
+      {camEnabled && (
+        <DockButton 
+          icon={SwitchCamera} 
+          onClick={switchCamera} 
+          color="muted"
+        />
+      )}
       <DockButton 
         icon={micEnabled ? Mic : MicOff} 
         onClick={toggleMic} 

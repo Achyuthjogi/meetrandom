@@ -16,6 +16,7 @@ export function useWebRTC() {
   const [onlineCount, setOnlineCount] = useState(0);
   const [messages, setMessages] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
+  const [facingMode, setFacingMode] = useState('user');
 
   const pcRef = useRef(null);
   const socketRef = useRef(null);
@@ -106,15 +107,25 @@ export function useWebRTC() {
     setRemoteStream(null);
   };
 
-  const startCamera = async () => {
+  const startCamera = async (mode = facingMode) => {
     try {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         console.error('MediaDevices API not available. You must use HTTPS or localhost to access the camera.');
         return false;
       }
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: mode }, 
+        audio: true 
+      });
+
+      if (localStreamRef.current) {
+        localStreamRef.current.getTracks().forEach((t) => t.stop());
+      }
+
       setLocalStream(stream);
       localStreamRef.current = stream;
+      setFacingMode(mode);
+
       // update tracks if connected
       if (pcRef.current) {
          stream.getTracks().forEach(track => {
@@ -128,6 +139,11 @@ export function useWebRTC() {
       console.error('Failed to get media:', err.message || err);
       return false;
     }
+  };
+
+  const switchCamera = async () => {
+    const newMode = facingMode === 'user' ? 'environment' : 'user';
+    return await startCamera(newMode);
   };
 
   const stopCamera = () => {
@@ -199,5 +215,6 @@ export function useWebRTC() {
     stopChat,
     sendMessage,
     sendTyping,
+    switchCamera,
   };
 }

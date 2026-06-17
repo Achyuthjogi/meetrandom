@@ -23,6 +23,7 @@ function App() {
     stopChat,
     sendMessage,
     sendTyping,
+    switchCamera,
   } = useWebRTC();
 
   const [camEnabled, setCamEnabled] = useState(true);
@@ -154,6 +155,7 @@ function App() {
               micEnabled={micEnabled}
               toggleCam={handleToggleCam}
               toggleMic={handleToggleMic}
+              switchCamera={switchCamera}
               state={connectionState}
             />
           </motion.div>
