@@ -22,112 +22,110 @@ export function FloatingDock({
   isPiP,
 }) {
   return (
-    <motion.div 
-      initial={{ y: 50, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1.5 p-2 glass rounded-full shadow-2xl border border-white/10 flex-wrap justify-center max-w-[95vw]"
-    >
-      {/* Media Controls */}
-      <DockButton 
-        icon={camEnabled ? Camera : VideoOff} 
-        onClick={toggleCam} 
-        active={camEnabled}
-        color="accent"
-        tooltip="Camera"
-      />
-      {camEnabled && (
+    <div className="fixed inset-0 z-50 pointer-events-none flex flex-col justify-end items-center pb-8 overflow-hidden">
+      <motion.div 
+        drag
+        dragMomentum={false}
+        initial={{ y: 50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        className="pointer-events-auto flex items-center gap-1.5 p-2 glass rounded-full shadow-2xl border border-white/10 flex-wrap justify-center max-w-[95vw] cursor-grab active:cursor-grabbing"
+      >
+        {/* Media Controls */}
         <DockButton 
-          icon={SwitchCamera} 
-          onClick={switchCamera} 
-          color="muted"
-          tooltip="Flip"
+          icon={camEnabled ? Camera : VideoOff} 
+          onClick={toggleCam} 
+          active={camEnabled}
+          color="accent"
+          tooltip="Camera"
         />
-      )}
-      <DockButton 
-        icon={micEnabled ? Mic : MicOff} 
-        onClick={toggleMic} 
-        active={micEnabled}
-        color="accent"
-        tooltip="Mic"
-      />
-      
-      <div className="w-px h-8 bg-white/10 mx-1" />
-
-      {/* Screen Share */}
-      <DockButton 
-        icon={isScreenSharing ? ScreenShareOff : ScreenShare} 
-        onClick={onScreenShare} 
-        active={isScreenSharing}
-        color={isScreenSharing ? "success" : "muted"}
-        tooltip={isScreenSharing ? "Stop Share" : "Share Screen"}
-        disabled={state !== 'connected'}
-      />
-
-      {/* PiP */}
-      <DockButton 
-        icon={MonitorPlay} 
-        onClick={onPiP} 
-        active={isPiP}
-        color={isPiP ? "accent" : "muted"}
-        tooltip="PiP"
-        disabled={state !== 'connected'}
-      />
-
-      <div className="w-px h-8 bg-white/10 mx-1" />
-
-      {/* Social */}
-      <DockButton 
-        icon={Heart} 
-        onClick={onReactions} 
-        color="muted"
-        tooltip="React"
-        disabled={state !== 'connected'}
-      />
-      <DockButton 
-        icon={Gamepad2} 
-        onClick={onGames} 
-        color="muted"
-        tooltip="Games"
-        disabled={state !== 'connected'}
-      />
-
-      <div className="w-px h-8 bg-white/10 mx-1" />
-
-      {/* Navigation */}
-      {state === 'connected' || state === 'searching' ? (
+        {camEnabled && (
+          <DockButton 
+            icon={SwitchCamera} 
+            onClick={switchCamera} 
+            color="muted"
+            tooltip="Flip"
+          />
+        )}
         <DockButton 
-          icon={Square} 
-          onClick={onStop} 
-          label="Stop"
-          color="danger"
+          icon={micEnabled ? Mic : MicOff} 
+          onClick={toggleMic} 
+          active={micEnabled}
+          color="accent"
+          tooltip="Mic"
+        />
+        
+        <div className="w-px h-8 bg-white/10 mx-1" />
+
+        {/* Screen Share */}
+        <DockButton 
+          icon={isScreenSharing ? ScreenShareOff : ScreenShare} 
+          onClick={onScreenShare} 
+          active={isScreenSharing}
+          color={isScreenSharing ? "success" : "muted"}
+          tooltip={isScreenSharing ? "Stop Share" : "Share Screen"}
+          disabled={state !== 'connected'}
+        />
+
+        {/* PiP */}
+        <DockButton 
+          icon={MonitorPlay} 
+          onClick={onPiP} 
+          active={isPiP}
+          color={isPiP ? "accent" : "muted"}
+          tooltip="PiP"
+          disabled={state !== 'connected'}
+        />
+
+        <div className="w-px h-8 bg-white/10 mx-1" />
+
+        {/* Social */}
+        <DockButton 
+          icon={Heart} 
+          onClick={onReactions} 
+          color="muted"
+          tooltip="React"
+          disabled={state !== 'connected'}
+        />
+        <DockButton 
+          icon={Gamepad2} 
+          onClick={onGames} 
+          color="muted"
+          tooltip="Games"
+          disabled={state !== 'connected'}
+        />
+
+        <div className="w-px h-8 bg-white/10 mx-1" />
+
+        {/* Navigation */}
+        {state === 'connected' || state === 'searching' ? (
+          <DockButton 
+            icon={Square} 
+            onClick={onStop} 
+            label="Stop"
+            color="danger"
+            solid
+          />
+        ) : null}
+
+        <DockButton 
+          icon={SkipForward} 
+          onClick={onNext} 
+          label={state === 'connected' ? 'Skip' : 'Next'}
+          color="success"
           solid
         />
-      ) : null}
 
-      <DockButton 
-        icon={SkipForward} 
-        onClick={onNext} 
-        label={state === 'connected' ? 'Skip' : 'Next'}
-        color="success"
-        solid
-      />
+        <div className="w-px h-8 bg-white/10 mx-1" />
 
-      <div className="w-px h-8 bg-white/10 mx-1" />
-
-      <DockButton 
-        icon={Flag} 
-        onClick={onReport} 
-        disabled={state !== 'connected'}
-        color="danger"
-        tooltip="Report"
-      />
-      <DockButton 
-        icon={Settings} 
-        onClick={onSettings} 
-        color="muted"
-        tooltip="Effects"
-      />
-    </motion.div>
+        <DockButton 
+          icon={Flag} 
+          onClick={onReport} 
+          disabled={state !== 'connected'}
+          color="danger"
+          tooltip="Report"
+        />
+      </motion.div>
+    </div>
   );
 }
 
