@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { io } from 'socket.io-client';
+import { createGame, tryMove, getGameStatus, stateToFEN, stateFromFEN } from '../lib/chessEngine';
 
 const STUN_SERVERS = {
   iceServers: [
@@ -33,6 +34,12 @@ export function useWebRTC() {
   const [wyrQuestion, setWyrQuestion] = useState(null);
   const [wyrMyPick, setWyrMyPick] = useState(null);
   const [wyrPartnerPick, setWyrPartnerPick] = useState(null);
+  
+  // Chess
+  const [chessState, setChessState] = useState(null);
+  const [chessIsMyTurn, setChessIsMyTurn] = useState(false);
+  const [chessMyColor, setChessMyColor] = useState('w');
+  const [chessStatus, setChessStatus] = useState('playing');
 
   // Icebreaker
   const [icebreakerQuestion, setIcebreakerQuestion] = useState(null);
@@ -52,6 +59,10 @@ export function useWebRTC() {
     setWyrMyPick(null);
     setWyrPartnerPick(null);
     setIcebreakerQuestion(null);
+    setChessState(null);
+    setChessIsMyTurn(false);
+    setChessMyColor('w');
+    setChessStatus('playing');
     setFriendRequested(false);
     setFriendAccepted(false);
     setFriendRoomCode('');
@@ -105,6 +116,12 @@ export function useWebRTC() {
         setTttIsMyTurn(false); // Initiator goes first
         setTttWinner(null);
         if (gameStartCallbackRef.current) gameStartCallbackRef.current(gameType);
+      } else if (gameType === 'chess') {
+        setChessState(createGame());
+        setChessMyColor('b'); // Receiver is black
+        setChessIsMyTurn(false); // Initiator (white) goes first
+        setChessStatus('playing');
+        if (gameStartCallbackRef.current) gameStartCallbackRef.current(gameType);
       }
     });
 
@@ -118,6 +135,15 @@ export function useWebRTC() {
           return newBoard;
         });
         setTttIsMyTurn(true);
+      } else if (data.game === 'chess') {
+        setChessState(prev => {
+          if (!prev) return prev;
+          const moveResult = tryMove(prev, data.fromRow, data.fromCol, data.toRow, data.toCol, data.promotion);
+          const newState = moveResult || stateFromFEN(data.fen);
+          setChessStatus(getGameStatus(newState));
+          return newState;
+        });
+        setChessIsMyTurn(true);
       }
     });
 
@@ -125,6 +151,11 @@ export function useWebRTC() {
       setTttBoard(Array(9).fill(null));
       setTttWinner(null);
       setTttIsMyTurn(false);
+      if (chessState) {
+        setChessState(createGame());
+        setChessStatus('playing');
+        setChessIsMyTurn(false); // Let initiator reset logic handle it
+      }
     });
 
     // ── Games: Would You Rather ────────────────────────────────
@@ -454,6 +485,11 @@ export function useWebRTC() {
       setTttMySymbol('X'); // Initiator is X
       setTttIsMyTurn(true); // Initiator goes first
       setTttWinner(null);
+    } else if (gameType === 'chess') {
+      setChessState(createGame());
+      setChessMyColor('w'); // Initiator is white
+      setChessIsMyTurn(true); // White goes first
+      setChessStatus('playing');
     }
   }, []);
 
@@ -475,6 +511,31 @@ export function useWebRTC() {
     setTttIsMyTurn(tttMySymbol === 'X'); // X always goes first
     socketRef.current?.emit('game-reset');
   }, [tttMySymbol]);
+
+  const makeChessMove = useCallback((fromRow, fromCol, toRow, toCol, promotion = null) => {
+    setChessState(prev => {
+      if (!prev) return prev;
+      const newState = tryMove(prev, fromRow, fromCol, toRow, toCol, promotion);
+      if (newState) {
+        setChessStatus(getGameStatus(newState));
+        setChessIsMyTurn(false);
+        const fen = stateToFEN(newState);
+        socketRef.current?.emit('game-move', {
+          game: 'chess',
+          fromRow, fromCol, toRow, toCol, promotion, fen
+        });
+        return newState;
+      }
+      return prev;
+    });
+  }, []);
+
+  const resetChess = useCallback(() => {
+    setChessState(createGame());
+    setChessStatus('playing');
+    setChessIsMyTurn(chessMyColor === 'w');
+    socketRef.current?.emit('game-reset');
+  }, [chessMyColor]);
 
   const sendWYRQuestion = useCallback((question) => {
     setWyrQuestion(question);
@@ -539,6 +600,13 @@ export function useWebRTC() {
     wyrPartnerPick,
     sendWYRQuestion,
     pickWYR,
+    // Chess
+    chessState,
+    chessIsMyTurn,
+    chessMyColor,
+    chessStatus,
+    makeChessMove,
+    resetChess,
     // Friend
     friendRequested,
     friendAccepted,

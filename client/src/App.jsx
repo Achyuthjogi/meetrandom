@@ -57,6 +57,13 @@ function App() {
     wyrPartnerPick,
     sendWYRQuestion,
     pickWYR,
+    // Chess
+    chessState,
+    chessIsMyTurn,
+    chessMyColor,
+    chessStatus,
+    makeChessMove,
+    resetChess,
     // Friend
     friendRequested,
     friendAccepted,
@@ -378,6 +385,13 @@ function App() {
         wyrMyPick={wyrMyPick}
         wyrPartnerPick={wyrPartnerPick}
         onWYRPick={pickWYR}
+        // Chess
+        chessState={chessState}
+        chessIsMyTurn={chessIsMyTurn}
+        chessMyColor={chessMyColor}
+        chessStatus={chessStatus}
+        onChessMove={makeChessMove}
+        onChessReset={resetChess}
         onStartGame={handleStartGame}
       />
 
